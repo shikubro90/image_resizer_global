@@ -193,7 +193,7 @@ export default function Home() {
         <div className="absolute top-[40%] right-[20%] w-[300px] h-[300px] rounded-full bg-pink-700/10 blur-[80px]" />
       </div>
 
-      <div className="relative max-w-2xl mx-auto px-4 py-12 space-y-8">
+      <div className={`relative mx-auto px-4 py-12 space-y-8 transition-all duration-500 ${resultUrl ? 'max-w-5xl' : 'max-w-2xl'}`}>
 
         {/* Header */}
         <div className="text-center space-y-2">
@@ -207,37 +207,55 @@ export default function Home() {
           <p className="text-slate-500 text-sm">Resize · Enhance · Remove Background</p>
         </div>
 
-        {/* Upload zone */}
-        <div
-          className={`relative rounded-2xl p-1 cursor-pointer transition-all duration-300 ${
-            dragging
-              ? 'bg-gradient-to-r from-violet-500 via-pink-500 to-cyan-500'
-              : 'bg-gradient-to-r from-violet-500/30 via-pink-500/20 to-cyan-500/30 hover:from-violet-500/50 hover:via-pink-500/40 hover:to-cyan-500/50'
-          }`}
-          onClick={() => fileRef.current?.click()}
-          onDrop={onDrop}
-          onDragOver={(e) => { e.preventDefault(); setDragging(true) }}
-          onDragLeave={() => setDragging(false)}
-        >
-          <div className="rounded-[14px] bg-[#0d0f1a] p-8 text-center min-h-[160px] flex flex-col items-center justify-center gap-3">
-            {srcUrl ? (
-              <>
-                <img src={srcUrl} alt="source" className="max-h-48 rounded-xl object-contain shadow-2xl" />
-                {naturalW > 0 && (
-                  <p className="text-xs text-slate-500">{srcFile?.name} · {naturalW}×{naturalH}px</p>
-                )}
-              </>
-            ) : (
-              <>
-                <div className="text-4xl animate-float">🖼️</div>
-                <p className="text-slate-300 font-medium">Drop image here or click to upload</p>
-                <p className="text-xs text-slate-600">JPG · PNG · WebP · TIFF · AVIF · up to 10 MB</p>
-              </>
-            )}
+        {/* Upload zone — collapses to compact strip when result is shown */}
+        {!resultUrl ? (
+          <div
+            className={`relative rounded-2xl p-1 cursor-pointer transition-all duration-300 ${
+              dragging
+                ? 'bg-gradient-to-r from-violet-500 via-pink-500 to-cyan-500'
+                : 'bg-gradient-to-r from-violet-500/30 via-pink-500/20 to-cyan-500/30 hover:from-violet-500/50 hover:via-pink-500/40 hover:to-cyan-500/50'
+            }`}
+            onClick={() => fileRef.current?.click()}
+            onDrop={onDrop}
+            onDragOver={(e) => { e.preventDefault(); setDragging(true) }}
+            onDragLeave={() => setDragging(false)}
+          >
+            <div className="rounded-[14px] bg-[#0d0f1a] p-8 text-center min-h-[160px] flex flex-col items-center justify-center gap-3">
+              {srcUrl ? (
+                <>
+                  <img src={srcUrl} alt="source" className="max-h-48 rounded-xl object-contain shadow-2xl" />
+                  {naturalW > 0 && (
+                    <p className="text-xs text-slate-500">{srcFile?.name} · {naturalW}×{naturalH}px</p>
+                  )}
+                </>
+              ) : (
+                <>
+                  <div className="text-4xl animate-float">🖼️</div>
+                  <p className="text-slate-300 font-medium">Drop image here or click to upload</p>
+                  <p className="text-xs text-slate-600">JPG · PNG · WebP · TIFF · AVIF · up to 10 MB</p>
+                </>
+              )}
+            </div>
+            <input ref={fileRef} type="file" accept="image/*" className="hidden"
+              onChange={(e) => e.target.files?.[0] && onFile(e.target.files[0])} />
           </div>
-          <input ref={fileRef} type="file" accept="image/*" className="hidden"
-            onChange={(e) => e.target.files?.[0] && onFile(e.target.files[0])} />
-        </div>
+        ) : (
+          /* Compact re-upload strip */
+          <button
+            className="w-full glass glass-hover rounded-xl px-4 py-3 flex items-center gap-3 text-sm text-slate-400 hover:text-white transition-all"
+            onClick={() => fileRef.current?.click()}
+            onDrop={onDrop}
+            onDragOver={(e) => { e.preventDefault(); setDragging(true) }}
+            onDragLeave={() => setDragging(false)}
+          >
+            <span className="text-lg">🖼️</span>
+            <span className="truncate flex-1 text-left">{srcFile?.name ?? 'Upload image'}</span>
+            {naturalW > 0 && <span className="text-xs text-slate-600 shrink-0">{naturalW}×{naturalH}</span>}
+            <span className="text-xs text-slate-600 border border-white/10 rounded px-2 py-0.5">Change</span>
+            <input ref={fileRef} type="file" accept="image/*" className="hidden"
+              onChange={(e) => e.target.files?.[0] && onFile(e.target.files[0])} />
+          </button>
+        )}
 
         {/* Mode tabs */}
         <div className="grid grid-cols-3 gap-3">
@@ -375,14 +393,11 @@ export default function Home() {
           </div>
         )}
 
-        {/* Result */}
-        {resultUrl && (
-          <div className="space-y-4">
+        {/* Side-by-side comparison */}
+        {resultUrl && srcUrl && (
+          <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <span className="font-semibold text-slate-200 flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-emerald-400" />
-                Result
-              </span>
+              <span className="text-sm font-semibold text-slate-400 uppercase tracking-widest">Before / After</span>
               <button
                 onClick={download}
                 className="flex items-center gap-2 px-5 py-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-sm font-semibold shadow-lg shadow-emerald-500/30 hover:scale-105 hover:shadow-emerald-500/50 transition-all active:scale-95"
@@ -390,13 +405,41 @@ export default function Home() {
                 ↓ Download
               </button>
             </div>
-            <div className="rounded-2xl overflow-hidden border border-white/10 shadow-2xl">
-              <img
-                src={resultUrl}
-                alt="result"
-                className="w-full"
-                style={{ background: 'repeating-conic-gradient(#1a1a2e 0% 25%, #16213e 0% 50%) 0 0 / 20px 20px' }}
-              />
+            <div className="grid grid-cols-2 gap-3">
+              {/* Original */}
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-slate-500" />
+                  <span className="text-xs text-slate-500 font-medium uppercase tracking-wider">Original</span>
+                </div>
+                <div className="rounded-2xl overflow-hidden border border-white/10 bg-[#0d0f1a]">
+                  <img
+                    src={srcUrl}
+                    alt="original"
+                    className="w-full object-contain max-h-[400px]"
+                    style={{ background: 'repeating-conic-gradient(#1a1a2e 0% 25%, #16213e 0% 50%) 0 0 / 20px 20px' }}
+                  />
+                </div>
+                {naturalW > 0 && (
+                  <p className="text-xs text-slate-600 text-center">{naturalW}×{naturalH}px</p>
+                )}
+              </div>
+              {/* Result */}
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                  <span className="text-xs text-emerald-400 font-medium uppercase tracking-wider">Result</span>
+                </div>
+                <div className="rounded-2xl overflow-hidden border border-emerald-500/20 shadow-lg shadow-emerald-500/10">
+                  <img
+                    src={resultUrl}
+                    alt="result"
+                    className="w-full object-contain max-h-[400px]"
+                    style={{ background: 'repeating-conic-gradient(#1a1a2e 0% 25%, #16213e 0% 50%) 0 0 / 20px 20px' }}
+                  />
+                </div>
+                <p className="text-xs text-slate-600 text-center">{meta.label} applied</p>
+              </div>
             </div>
           </div>
         )}
