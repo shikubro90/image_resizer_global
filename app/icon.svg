@@ -2,24 +2,19 @@
   <defs>
     <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#7c3aed"/>
-      <stop offset="50%" stop-color="#ec4899"/>
-      <stop offset="100%" stop-color="#06b6d4"/>
-    </linearGradient>
-    <linearGradient id="img" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.95"/>
-      <stop offset="100%" stop-color="#e0e7ff" stop-opacity="0.85"/>
+      <stop offset="100%" stop-color="#ec4899"/>
     </linearGradient>
   </defs>
   <!-- Rounded square background -->
-  <rect width="32" height="32" rx="8" fill="url(#bg)"/>
+  <rect width="32" height="32" rx="7" fill="url(#bg)"/>
   <!-- Image frame -->
-  <rect x="5" y="7" width="22" height="18" rx="2.5" fill="url(#img)" opacity="0.15"/>
-  <rect x="5" y="7" width="22" height="18" rx="2.5" fill="none" stroke="white" stroke-width="1.8" opacity="0.9"/>
-  <!-- Mountain / landscape icon inside frame -->
-  <polygon points="9,21 15,13 19,17 22,14 27,21" fill="white" opacity="0.85"/>
-  <!-- Sun circle -->
-  <circle cx="22" cy="12" r="2.2" fill="white" opacity="0.9"/>
-  <!-- Resize arrows bottom-right corner -->
-  <polyline points="20,26 26,26 26,20" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity="0.95"/>
-  <line x1="22.5" y1="23.5" x2="26" y2="20" stroke="white" stroke-width="1.5" stroke-linecap="round" opacity="0.95"/>
+  <rect x="4" y="6" width="18" height="14" rx="2" fill="none" stroke="white" stroke-width="1.8" opacity="0.95"/>
+  <!-- Mountain inside frame -->
+  <polygon points="6,18 11,12 14,15 17,13 22,18" fill="white" opacity="0.9"/>
+  <!-- Sun dot -->
+  <circle cx="19" cy="10" r="1.8" fill="white" opacity="0.95"/>
+  <!-- Resize arrow: bottom-right corner bracket -->
+  <polyline points="19,24 27,24 27,16" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Diagonal arrow tip -->
+  <line x1="21" y1="22" x2="27" y2="16" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
 </svg>
