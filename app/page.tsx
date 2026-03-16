@@ -201,6 +201,7 @@ export default function Home() {
   const [cropBox, setCropBox] = useState<CropBox | null>(null)
 
   const fileRef = useRef<HTMLInputElement>(null)
+  const cropImgRef = useRef<HTMLImageElement>(null)
   const srcUrlRef = useRef<string | null>(null)
   const resultUrlRef = useRef<string | null>(null)
 
@@ -254,13 +255,33 @@ export default function Home() {
 
     // ── Crop: client-side canvas, no API call ──
     if (mode === 'crop') {
-      if (!cropBox || !srcUrl) return
-      const box = {
+      if (!cropBox || !srcUrl || !cropImgRef.current) return
+      const elW = cropImgRef.current.offsetWidth
+      const elH = cropImgRef.current.offsetHeight
+
+      // object-contain letterbox offsets (as fractions of element size)
+      const scale = Math.min(elW / naturalW, elH / naturalH)
+      const rendW = naturalW * scale
+      const rendH = naturalH * scale
+      const offX = (elW - rendW) / 2 / elW
+      const offY = (elH - rendH) / 2 / elH
+      const scX = rendW / elW
+      const scY = rendH / elH
+
+      const clamp = (v: number) => Math.max(0, Math.min(1, v))
+      const raw = {
         left:   Math.min(cropBox.x1, cropBox.x2),
         top:    Math.min(cropBox.y1, cropBox.y2),
         right:  Math.max(cropBox.x1, cropBox.x2),
         bottom: Math.max(cropBox.y1, cropBox.y2),
       }
+      const box = {
+        left:   clamp((raw.left   - offX) / scX),
+        top:    clamp((raw.top    - offY) / scY),
+        right:  clamp((raw.right  - offX) / scX),
+        bottom: clamp((raw.bottom - offY) / scY),
+      }
+
       const img = new Image()
       img.onload = () => {
         const x = Math.round(box.left * img.naturalWidth)
@@ -425,6 +446,7 @@ export default function Home() {
               cropBoxValid ? 'border-amber-500/40 shadow-lg shadow-amber-500/10' : 'border-white/10'
             }`}>
               <img
+                ref={cropImgRef}
                 src={srcUrl!}
                 alt="crop source"
                 className="w-full object-contain max-h-[480px] block"
